@@ -108,5 +108,15 @@ route.post("/user/logout", auth, async (req, res) => {
     res.send();
   }
 });
+// LOGOUT ALL
+route.post("/user/logoutAll", auth, async (req, res) => {
+  try {
+    req.user.tokens = [];
+    await req.user.save();
+    res.send();
+  } catch (err) {
+    res.status(500).send(err);
+  }
+});
 
 module.exports = route;
