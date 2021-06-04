@@ -9,7 +9,7 @@ const Product = require("../models/product");
 let productImages = [];
 
 // upload product data
-route.get("/upload/data", async (req, res) => {
+route.get("/upload/data", auth, async (req, res) => {
   const product = new Product(req.body);
   try {
     await product.save();
@@ -28,6 +28,7 @@ route.get("/upload/data", async (req, res) => {
 // Fetch all product
 route.get(
   "/",
+  auth,
   async (req, res) => {
     const products = await Product.find({});
     res.send(products);
@@ -38,7 +39,7 @@ route.get(
 );
 
 // Fetch product data
-route.get("/:id", async (req, res) => {
+route.get("/:id", auth, async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
     res.status(200).send(product);
@@ -53,7 +54,7 @@ const upload = multer({
     fileSize: 2000000,
   },
   fileFilter(req, file, cb) {
-    if (!file.originalname.match(/\.(jpg|jpeg|png)$/)) {
+    if (!file.originalname.match(/\.(jpg|png|jpeg)$/)) {
       return cb(new Error("Please insert an image!"));
     }
 
@@ -63,18 +64,19 @@ const upload = multer({
 
 route.post(
   "/upload/image",
+  auth,
   upload.single("upload"),
   async (req, res) => {
     productImages.push(req.file.buffer);
-    res.send(productImages);
+    res.send({ file: req.file.buffer });
   },
   (error, req, res, next) => {
-    res.status(400).send({ error: error });
+    res.status(400).send({ error: error.message });
   }
 );
 
 // delete images from database
-route.delete("/delete/:productId/image/:imageID", async (req, res) => {
+route.delete("/delete/:productId/image/:imageID", auth, async (req, res) => {
   try {
     const product = await Product.findById(req.params.productId);
     product.images = product.images.filter((image) => {

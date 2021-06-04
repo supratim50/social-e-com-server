@@ -3,7 +3,7 @@ const User = require("../models/users");
 
 const auth = async (req, res, next) => {
   try {
-    const token = req.header("Authentication").replace("Barear ", "");
+    const token = req.header("Authentication").replace("Bearer ", "");
     const decode = jwt.verify(token, process.env.SECRET_KEY);
     const user = await User.findOne({
       email: decode.email,
@@ -18,7 +18,7 @@ const auth = async (req, res, next) => {
     req.user = user;
     next();
   } catch (e) {
-    res.status(401).send("Please Authenticate.");
+    res.status(401).send({ error: "Please Authenticate." });
   }
 };
 
