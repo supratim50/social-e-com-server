@@ -25,7 +25,7 @@ route.get("/upload/data", auth, async (req, res) => {
   }
 });
 
-// Fetch all product
+// Fetch all products
 route.get(
   "/",
   auth,
@@ -48,7 +48,7 @@ route.get("/:id", auth, async (req, res) => {
   }
 });
 
-// uploada images
+// upload images
 const upload = multer({
   limits: {
     fileSize: 2000000,

@@ -28,6 +28,7 @@ const userSchema = new mongoose.Schema({
       }
     },
   },
+  interest: Array,
   tokens: [
     {
       token: {

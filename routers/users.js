@@ -1,6 +1,7 @@
 const express = require("express");
 const multer = require("multer");
 const auth = require("../middleware/auth");
+const { removeListener } = require("../models/users");
 const route = express.Router();
 
 const User = require("../models/users");
@@ -116,6 +117,19 @@ route.post("/user/logoutAll", auth, async (req, res) => {
     res.send();
   } catch (err) {
     res.status(500).send(err);
+  }
+});
+
+// STORING INTEREST
+route.post("/user/interest", auth, async (req, res) => {
+  const { interest } = req.body;
+
+  try {
+    req.user.interest = interest;
+    await req.user.save();
+    res.send();
+  } catch (err) {
+    res.status(400).send({ error: err.message });
   }
 });
 
