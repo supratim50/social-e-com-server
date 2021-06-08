@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const postSchema = mongoose.Schema({
   userID: {
     type: String,
-    require: true,
+    required: true,
   },
   title: {
     type: String,
@@ -13,10 +13,14 @@ const postSchema = mongoose.Schema({
     {
       image: {
         type: Buffer,
-        require: true,
+        required: true,
       },
     },
   ],
+  category: {
+    type: String,
+    required: true,
+  },
   like: {
     totalLike: {
       type: Number,
@@ -30,6 +34,16 @@ const postSchema = mongoose.Schema({
     ],
   },
 });
+
+// temporary hiding data
+postSchema.methods.toJSON = function () {
+  const post = this;
+  const postObject = post.toObject();
+
+  delete postObject.images;
+
+  return postObject;
+};
 
 const Post = mongoose.model("posts", postSchema);
 

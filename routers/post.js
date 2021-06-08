@@ -15,15 +15,15 @@ route.post("/upload", auth, async (req, res) => {
 
   try {
     await post.save();
-    // uploading images
+    // images save to database
     postImages.map((buffer) => {
       post.images = post.images.concat({ image: buffer });
+      postImages = [];
     });
     await post.save();
-    res.send();
-    postImages = [];
-  } catch (err) {
-    res.status(400).send({ error: err.messages });
+    res.send(post);
+  } catch (error) {
+    res.status(400).send({ error: error.message });
   }
 });
 
@@ -47,11 +47,38 @@ route.post(
   (req, res) => {
     const imageBuffer = req.file.buffer;
     postImages.push(imageBuffer);
+    console.log(postImages);
     res.send(postImages);
   },
   (error, req, res, next) => {
     res.status(400).send({ error: error.message });
   }
 );
+
+// FETCH ALL POSTS
+route.get("/", async (req, res) => {
+  try {
+    const posts = await Post.find({});
+
+    if (!posts) {
+      throw new Error("Post is not found!");
+    }
+
+    res.send(posts);
+  } catch (err) {
+    res.send({ error: err.message });
+  }
+});
+
+// FETCH POSTS BY CATEGORY
+route.get("/:category", async (req, res) => {
+  const category = req.params.category;
+  try {
+    const posts = await Post.find({ category });
+    res.send(posts);
+  } catch (error) {
+    res.status(400).send({ error: error.message });
+  }
+});
 
 module.exports = route;
