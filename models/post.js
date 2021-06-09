@@ -24,6 +24,7 @@ const postSchema = mongoose.Schema({
   like: {
     totalLike: {
       type: Number,
+      default: 0,
     },
     users: [
       {

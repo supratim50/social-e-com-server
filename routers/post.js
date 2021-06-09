@@ -81,4 +81,31 @@ route.get("/:category", async (req, res) => {
   }
 });
 
+// LIKING THE POST
+route.post("/:postId/like", auth, async (req, res) => {
+  const postId = req.params.postId;
+
+  try {
+    const post = await Post.findById(postId);
+
+    if (!post) {
+      throw new Error("Post is no longer abvailable!");
+    }
+
+    const users = post.like.users;
+    // pushing the user id in users array
+    users.push(req.user);
+    // save to database
+    await post.save();
+
+    // add total like
+    post.like.totalLike = users.length;
+    await post.save();
+
+    res.send(post);
+  } catch (error) {
+    res.status(400).send({ error: error.message });
+  }
+});
+
 module.exports = route;
