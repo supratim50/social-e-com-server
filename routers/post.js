@@ -82,7 +82,7 @@ route.get("/:category", async (req, res) => {
 });
 
 // LIKING THE POST
-route.post("/:postId/like", auth, async (req, res) => {
+route.post("/like/:postId", auth, async (req, res) => {
   const postId = req.params.postId;
 
   try {
@@ -92,14 +92,14 @@ route.post("/:postId/like", auth, async (req, res) => {
       throw new Error("Post is no longer abvailable!");
     }
 
-    const users = post.like.users;
+    const users = post.likes.users;
     // pushing the user id in users array
     users.push(req.user);
     // save to database
     await post.save();
 
     // add total like
-    post.like.totalLike = users.length;
+    post.likes.totalLike = users.length;
     await post.save();
 
     res.send(post);
@@ -107,5 +107,35 @@ route.post("/:postId/like", auth, async (req, res) => {
     res.status(400).send({ error: error.message });
   }
 });
+
+// COMMENT ON THE POST
+route.post("/comment/:postId", auth, async (req, res) => {
+  const postId = req.params.postId;
+
+  try {
+    const post = await Post.findById(postId);
+
+    if (!post) {
+      throw new Error("Post is no longer available!");
+    }
+
+    const comment = {
+      userId: req.user._id.toString(),
+      text: req.body.comment,
+    };
+
+    // saving comment into database
+    post.comments = post.comments.concat({ comment });
+    await post.save();
+
+    res.send(post);
+  } catch (error) {
+    res.status(400).send({ error: error.message });
+  }
+});
+
+// FETCHING LIKES
+
+// FETCHING COMMENTS
 
 module.exports = route;

@@ -21,7 +21,7 @@ const postSchema = mongoose.Schema({
     type: String,
     required: true,
   },
-  like: {
+  likes: {
     totalLike: {
       type: Number,
       default: 0,
@@ -34,6 +34,18 @@ const postSchema = mongoose.Schema({
       },
     ],
   },
+  comments: [
+    {
+      comment: {
+        userId: {
+          type: String,
+        },
+        text: {
+          type: String,
+        },
+      },
+    },
+  ],
 });
 
 // temporary hiding data
