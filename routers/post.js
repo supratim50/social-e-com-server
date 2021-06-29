@@ -1,5 +1,6 @@
 const route = require("express").Router();
 const multer = require("multer");
+const path = require("path");
 
 const auth = require("../middleware/auth");
 const Post = require("../models/post");
@@ -16,8 +17,8 @@ route.post("/upload", auth, async (req, res) => {
   try {
     await post.save();
     // images save to database
-    postImages.map((buffer) => {
-      post.images = post.images.concat({ image: buffer });
+    postImages.map((image) => {
+      post.images = post.images.concat({ image });
       postImages = [];
     });
     await post.save();
@@ -28,7 +29,17 @@ route.post("/upload", auth, async (req, res) => {
 });
 
 // UPLOAD IMAGES
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "images/posts/");
+  },
+  filename: function (req, file, cb) {
+    cb(null, `${Date.now()}${path.extname(file.originalname)}`);
+  },
+});
+
 const upload = multer({
+  storage: storage,
   limits: {
     fileSize: 2000000,
   },
@@ -45,9 +56,10 @@ route.post(
   "/upload/images",
   upload.single("upload"),
   (req, res) => {
-    const imageBuffer = req.file.buffer;
-    postImages.push(imageBuffer);
-    console.log(postImages);
+    const imageUrl = `http://localhost:4000/images/posts/${req.file.filename}`;
+
+    postImages.push(imageUrl);
+    console.log(req.file);
     res.send(postImages);
   },
   (error, req, res, next) => {
@@ -63,6 +75,8 @@ route.get("/", async (req, res) => {
     if (!posts) {
       throw new Error("Post is not found!");
     }
+
+    // const { post } = posts;
 
     res.send(posts);
   } catch (err) {
@@ -135,6 +149,21 @@ route.post("/comment/:postId", auth, async (req, res) => {
 });
 
 // FETCHING LIKES
+route.get("/likes/:postId", auth, async (req, res) => {
+  const postId = req.params.postId;
+
+  try {
+    const post = await Post.findById(postId);
+
+    if (!post) {
+      throw new Error("Post is no longer available!");
+    }
+
+    res.send(post.likes);
+  } catch (error) {
+    res.status(400).send({ error: error.message });
+  }
+});
 
 // FETCHING COMMENTS
 

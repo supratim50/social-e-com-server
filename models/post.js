@@ -12,7 +12,7 @@ const postSchema = mongoose.Schema({
   images: [
     {
       image: {
-        type: Buffer,
+        type: String,
         required: true,
       },
     },
@@ -49,14 +49,14 @@ const postSchema = mongoose.Schema({
 });
 
 // temporary hiding data
-postSchema.methods.toJSON = function () {
-  const post = this;
-  const postObject = post.toObject();
+// postSchema.methods.toJSON = function () {
+//   const post = this;
+//   const postObject = post.toObject();
 
-  delete postObject.images;
+//   delete postObject.images;
 
-  return postObject;
-};
+//   return postObject;
+// };
 
 const Post = mongoose.model("posts", postSchema);
 
