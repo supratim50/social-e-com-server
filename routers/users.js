@@ -3,8 +3,22 @@ const multer = require("multer");
 const auth = require("../middleware/auth");
 // const { removeListener } = require("../models/users");
 const route = express.Router();
+const path = require("path");
 
 const User = require("../models/users");
+
+// fetch users by ID
+route.get("/user/:email", async (req, res) => {
+  const email = req.params.email;
+  // res.setHeader("Access-Control-Allow-Origin", "*")
+
+  try {
+    const user = await User.findOne({ email });
+    res.send(user);
+  } catch (err) {
+    res.status(404).send({ error: err.message });
+  }
+});
 
 // fetch all users
 route.get("/users", auth, async (req, res) => {
@@ -19,18 +33,29 @@ route.get("/users", auth, async (req, res) => {
 // register
 route.post("/user", async (req, res) => {
   const user = new User(req.body);
+  // console.log(req.body);
 
   try {
     await user.save();
     const token = await user.generateAuthToken();
     res.status(200).send({ user, token });
-  } catch (e) {
-    res.status(400).send(e);
+  } catch (error) {
+    res.status(400).send({ error: error.message });
   }
 });
 
 // Upload profile picture
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "images/users/");
+  },
+  filename: function (req, file, cb) {
+    cb(null, `${Date.now()}${path.extname(file.originalname)}`);
+  },
+});
+
 const upload = multer({
+  storage: storage,
   limits: {
     fileSize: 1000000,
   },
@@ -47,9 +72,9 @@ route.post(
   auth,
   upload.single("upload"),
   async (req, res) => {
-    req.user.userImage = req.file.buffer;
-    await req.user.save();
-    res.send();
+    req.user.userImage = `http://localhost:4000/images/users/${req.file.filename}`;
+    const image = await req.user.save();
+    res.send(image);
   },
   (error, req, res, next) => {
     res.status(400).send({ error: error.message });

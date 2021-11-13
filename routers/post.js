@@ -10,7 +10,7 @@ let postImages = [];
 // UPLOAD DATA
 route.post("/upload", auth, async (req, res) => {
   const postData = req.body;
-  postData.userID = req.user._id.toString();
+  postData.userEmail = req.user.email;
 
   const post = Post(postData);
 
@@ -71,6 +71,24 @@ route.post(
 route.get("/", async (req, res) => {
   try {
     const posts = await Post.find({});
+
+    if (!posts) {
+      throw new Error("Post is not found!");
+    }
+
+    // const { post } = posts;
+
+    res.send(posts);
+  } catch (err) {
+    res.send({ error: err.message });
+  }
+});
+
+// FETCH POSTS BY EMAIL
+route.get("/:email", async (req, res) => {
+  const email = req.params.email;
+  try {
+    const posts = await Post.find({ userEmail: email });
 
     if (!posts) {
       throw new Error("Post is not found!");

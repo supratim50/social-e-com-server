@@ -13,13 +13,14 @@ const app = express();
 const port = process.env.PORT || 4000;
 
 // middleware
+app.use(cors());
 app.use(express.json());
 app.use(userRoutes);
-app.use(cors());
 app.use("/products", productRoutes);
 app.use("/post", postRoutes);
 // for accessing the image
 app.use("/images/posts/", express.static("images/posts"));
+app.use("/images/users/", express.static("images/users"));
 
 app.listen(port, () => {
   console.log(`Server is running on ${port}`);

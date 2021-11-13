@@ -38,7 +38,7 @@ const userSchema = new mongoose.Schema({
     },
   ],
   userImage: {
-    type: Buffer,
+    type: String,
   },
 });
 
